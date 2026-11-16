@@ -3,9 +3,10 @@ import queue
 import threading
 import logging
 
+from storage import save_to_csv
 from analyzer import consumer
 from scraper import fetch_page
-from config import NAME, INDEX_NUMBER, KEYWORDS, URLS
+from config import FILENAME, NAME, INDEX_NUMBER, KEYWORDS, URLS
 
 logging.info(f"Starting analysis for {NAME} (Index: {INDEX_NUMBER})")
 
@@ -23,3 +24,5 @@ def main():
         wait(producer_thread)
         stop_event.set()
         wait(consumer_thread)
+
+    save_to_csv(results_queue, FILENAME, KEYWORDS)
