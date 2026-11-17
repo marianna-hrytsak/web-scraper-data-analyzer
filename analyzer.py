@@ -1,9 +1,11 @@
-import re
+import logging
 import queue
+import re
+
 
 def count_words(text: str, keywords: list) -> dict:
     text_lower = text.lower()
-    
+
     word_counts = {}
     for keyword in keywords:
         pattern = r'\b' + re.escape(keyword.lower()) + r'\b'
@@ -22,5 +24,8 @@ def consumer(articles_queue, results_queue, keywords, stop_event):
         try:
             counts = count_words(article['text'], keywords)
             results_queue.put({'url': article['url'], 'counts': counts})
+            logging.info(f"Przeanalizowano {article['url']}: {counts}")
+        except Exception as e:
+            logging.error(f"Błąd analizy {article.get('url')}: {e}")
         finally:
             articles_queue.task_done()
