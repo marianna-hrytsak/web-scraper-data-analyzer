@@ -21,17 +21,17 @@ def main():
 
     try:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            consumer_thread = [ executor.submit(consumer, articles_queue, results_queue, KEYWORDS, stop_event)
+            consumer_futures = [ executor.submit(consumer, articles_queue, results_queue, KEYWORDS, stop_event)
                             for _ in range(NUM_OF_CONSUMERS) ]
-            producer_thread = [ executor.submit(fetch_page, url, articles_queue, stop_event) 
+            producer_futures = [ executor.submit(fetch_page, url, articles_queue, stop_event) 
                             for url in URLS ]
 
-            wait(producer_thread)
+            wait(producer_futures)
             articles_queue.join()
             stop_event.set()
-            wait(consumer_thread)
+            wait(consumer_futures)
 
-            for future in producer_thread + consumer_thread:
+            for future in producer_futures + consumer_futures:
                 if future.exception():
                     logging.error(f"Wątek zakończył się błędem: {future.exception()!r}")
     except KeyboardInterrupt:
